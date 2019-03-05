@@ -1,0 +1,101 @@
+{% set name = "aiida-quantumespresso" %}
+{% set version = "2.1.1a2" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  # created by `python setup.py sdist`
+  url: https://github.com/chrisjsewell/aiida-quantumespresso/releases/download/v{{ version }}/{{ version }}.tar.gz
+  # sha256 is the prefered checksum -- you can get it for a file with:
+  #  `openssl sha256 <file name>`.
+  # You may need the openssl package, available on conda-forge
+  #  `conda install openssl -c conda-forge`
+  sha256: 74e3be7b3734ce92f1baa93e3ef6bc182b576354332be338cb69c8d62e6d7315
+
+build:
+  number: 0
+  entry_points:
+    - launch_calculation_pw = aiida_quantumespresso.cli.calculations.pw.base:launch
+    - launch_workflow_pw_band_structure = aiida_quantumespresso.cli.workflows.pw.band_structure:launch
+    - launch_workflow_pw_bands = aiida_quantumespresso.cli.workflows.pw.bands:launch
+    - launch_workflow_pw_relax = aiida_quantumespresso.cli.workflows.pw.relax:launch
+    - launch_workflow_pw_base = aiida_quantumespresso.cli.workflows.pw.base:launch
+    - launch_workflow_ph_base = aiida_quantumespresso.cli.workflows.ph.base:launch
+    - launch_workflow_q2r_base = aiida_quantumespresso.cli.workflows.q2r.base:launch
+    - launch_workflow_matdyn_base = aiida_quantumespresso.cli.workflows.matdyn.base:launch
+  noarch: python
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
+
+requirements:
+  host:
+    - pip
+    - python =2.7
+    - reentry
+    - setuptools
+  run:
+    - aiida-core ==0.12.2
+    - ase >=3.12
+    - click
+    - postgresql >=9.4
+    - python =2.7
+    - setuptools
+    - spglib (>=1.10,<1.11)
+
+test:
+  imports:
+    - aiida_quantumespresso
+    # calculation imports require a backend to be loaded
+    # - aiida_quantumespresso.calculations
+    # - aiida_quantumespresso.calculations.helpers
+    - aiida_quantumespresso.cli
+    - aiida_quantumespresso.cli.calculations
+    - aiida_quantumespresso.cli.calculations.pw
+    - aiida_quantumespresso.cli.workflows
+    - aiida_quantumespresso.cli.workflows.matdyn
+    - aiida_quantumespresso.cli.workflows.ph
+    - aiida_quantumespresso.cli.workflows.pw
+    - aiida_quantumespresso.cli.workflows.q2r
+    - aiida_quantumespresso.common
+    - aiida_quantumespresso.common.workchain
+    - aiida_quantumespresso.common.workchain.base
+    - aiida_quantumespresso.data
+    - aiida_quantumespresso.parsers
+    - aiida_quantumespresso.tools
+    - aiida_quantumespresso.tools.dbexporters
+    - aiida_quantumespresso.tools.dbexporters.tcod_plugins
+    - aiida_quantumespresso.utils
+    - aiida_quantumespresso.utils.click
+    - aiida_quantumespresso.utils.defaults
+    - aiida_quantumespresso.utils.defaults.calculation
+    - aiida_quantumespresso.workflows
+    - aiida_quantumespresso.workflows.matdyn
+    - aiida_quantumespresso.workflows.ph
+    - aiida_quantumespresso.workflows.pw
+    - aiida_quantumespresso.workflows.q2r
+    - examples
+    - tests
+    - tests.parsers
+  commands:
+    - launch_calculation_pw --help
+    - launch_workflow_pw_band_structure --help
+    - launch_workflow_pw_bands --help
+    - launch_workflow_pw_relax --help
+    - launch_workflow_pw_base --help
+    - launch_workflow_ph_base --help
+    - launch_workflow_q2r_base --help
+    - launch_workflow_matdyn_base --help
+
+about:
+  home: https://github.com/aiidateam/aiida-quantumespresso
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: The official AiiDA plugin for Quantum ESPRESSO
+  doc_url: http://aiida-quantumespresso.readthedocs.io
+  dev_url: https://github.com/aiidateam/aiida-quantumespresso
+
+extra:
+  recipe-maintainers:
+    - chrisjsewell
