@@ -1127,11 +1127,12 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
             raise InputValidationError(
                 'I could not read an element name in {}'.format(match.group(0))
             )
-        structuredata.append_kind(Kind(
-                name=name,
-                symbols=symbols,
-                mass=mass,
-            ))
+        if name in atomic_positions['names']:
+            structuredata.append_kind(Kind(
+                    name=name,
+                    symbols=symbols,
+                    mass=mass,
+                ))
 
     ################## POSITIONS #######################
     positions_units = atomic_positions['units']

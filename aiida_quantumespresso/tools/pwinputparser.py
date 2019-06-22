@@ -389,6 +389,8 @@ def create_builder_from_file(input_folder, input_file_name, code, metadata, pseu
     pseudo_file_names = parsed_file.atomic_species['pseudo_file_names']
     pseudo_file_map = {}
     for name, fname in zip(names, pseudo_file_names):
+        if name not in parsed_file.atomic_positions['names']:
+            continue
         if fname not in pseudo_file_map:
             local_path = pseudo_folder_path.get_abs_path(fname)
             upf_node, _ = UpfData.get_or_create(local_path, use_first=use_first, store_upf=False)
