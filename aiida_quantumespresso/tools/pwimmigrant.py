@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from aiida.common.datastructures import CalcJobState
 from aiida.common.folders import Folder, SandboxFolder
 from aiida.common.links import LinkType
-from aiida.engine import ProcessState
+from aiida.engine import ExitCode, ProcessState
 from aiida.engine.daemon.execmanager import parse_results
 from aiida.engine.utils import instantiate_process
 from aiida.manage.manager import get_manager
@@ -86,6 +86,19 @@ def immigrate_existing(builder, folder, outfile, xml_file=None, remote_path=None
         exit_code = process.parse(temp_retrieved.abspath)
     process.update_outputs()
 
+    if xml_file is None:
+        # we can ignore a missing XML file exit code
+        # Note xml exit codes come last in the parsing function
+        if exit_code.status == pw_calc_cls.exit_codes.ERROR_OUTPUT_XML_MISSING.status:
+            exit_code = ExitCode()
+        # the output_structure node will not have been created but,
+        # if output_trajectory is present, we can create it from there
+        if "output_structure" not in calc_node.outputs and "output_trajectory" in calc_node.outputs:
+            structure = calc_node.outputs.output_trajectory.get_step_structure(-1)
+            structure.add_incoming(calc_node, link_type=LinkType.CREATE,
+                                   link_label='output_structure')
+            structure.store()
+
     # finalise calc node
     calc_node.delete_state()
     calc_node.delete_checkpoint()
@@ -96,6 +109,6 @@ def immigrate_existing(builder, folder, outfile, xml_file=None, remote_path=None
 
     # record that the node was created via immigration
     calc_node.set_extra('immigrated', True)
-    calc_node.set_extra('immigration_func', 'aiida_quantumespresso.tools.pwimmigrant.immigrate_existing')
+    calc_node.set_extra('immigration_module', __name__)
 
     return calc_node
