@@ -292,12 +292,15 @@ class PwBaseWorkChain(BaseRestartWorkChain):
         for the next calculation and the `restart_mode` is set to `restart`. Otherwise, no `parent_folder` is used and
         `restart_mode` is set to `from_scratch`.
         """
-        if self.ctx.restart_calc:
-            self.ctx.inputs.parameters['CONTROL']['restart_mode'] = 'restart'
-            self.ctx.inputs.parent_folder = self.ctx.restart_calc.outputs.remote_folder
-        else:
-            self.ctx.inputs.parameters['CONTROL']['restart_mode'] = 'from_scratch'
-            self.ctx.inputs.pop('parent_folder', None)
+        try:
+            if self.ctx.restart_calc:
+                self.ctx.inputs.parameters['CONTROL']['restart_mode'] = 'restart'
+                self.ctx.inputs.parent_folder = self.ctx.restart_calc.outputs.remote_folder
+            else:
+                self.ctx.inputs.parameters['CONTROL']['restart_mode'] = 'from_scratch'
+                self.ctx.inputs.pop('parent_folder', None)
+        except KeyError as err:
+            raise KeyError("{}, {}".format(err, self.ctx.inputs.parameters, self.ctx.inputs))
 
     def _handle_calculation_sanity_checks(self, calculation):
         """The current `calculation` has finished successfully according to the parser, but double-check.

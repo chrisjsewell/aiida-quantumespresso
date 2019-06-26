@@ -140,7 +140,7 @@ def generate_code_localhost():
     def _generate_code_localhost(entry_point_name, computer):
         from aiida.orm import Code
         plugin_name = entry_point_name
-        remote_computer_exec = [computer, '/bin/true']
+        remote_computer_exec = [computer, '/opt/local/bin/pw.x']
         return Code(input_plugin_name=plugin_name, remote_computer_exec=remote_computer_exec)
 
     return _generate_code_localhost
